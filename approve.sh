@@ -48,13 +48,13 @@ elif [ -z "${AZURE_ORG}" ]; then
     exit 1
 fi
 
-APPROVALS_LIST=$(curl -u :${AZURE_PAT} https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals?api-version=6.0)
+APPROVALS_LIST=$(curl -u ":${AZURE_PAT}" "https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals?api-version=6.0")
 
-if echo "${APPROVALS_LIST}" | jq > /dev/null 2>&1; then
-    APPROVAL_ID="$(echo ${APPROVALS_LIST} | jq '.value[] | select(.release.id=='${RELEASE_ID}') | .id')"
+if [ -z "${APPROVALS_LIST}" ] || echo "${APPROVALS_LIST}" | jq > /dev/null 2>&1; then
+    APPROVAL_ID=$(echo "${APPROVALS_LIST}" | jq '.value[] | select(.release.id=='"${RELEASE_ID}"') | .id')
     if [ -n "${APPROVAL_ID}" ]; then
         echo "Approval ID found: ${APPROVAL_ID}"
-        if curl --header "Content-Type: application/json" --data '{"status": "approved","comments": "ServiceNow request has been approved."}' -u :${AZURE_PAT} --request PATCH https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals/${APPROVAL_ID}?api-version=6.0 | grep "approvedBy" > /dev/null 2>&1; then
+        if curl --header "Content-Type: application/json" --data '{"status": "approved","comments": "ServiceNow request has been approved."}' -u ":${AZURE_PAT}" --request PATCH "https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals/${APPROVAL_ID}?api-version=6.0" | grep "approvedBy" > /dev/null 2>&1; then
             echo "Successfully approved release to production."
         else
             echo "Failed to approve release to production."
