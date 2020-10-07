@@ -65,6 +65,6 @@ if [ -n "${APPROVALS_LIST}" ] && echo "${APPROVALS_LIST}" | jq '.value[]' > /dev
         exit 1
     fi
 else
-    echo -e "\nFailed to fetch approvals list or approval list is empty.\n\nError: \n${APPROVALS_LIST}"
+    echo -e "\nFailed to fetch approvals list or approvals list is empty.\n\nError: \n${APPROVALS_LIST}"
     exit 1
 fi
