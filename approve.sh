@@ -50,8 +50,9 @@ fi
 
 APPROVALS_LIST=$(curl -u ":${AZURE_PAT}" "https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals?api-version=6.0")
 
+echo $APPROVALS_LIST my approval list
+
 if [ -z "${APPROVALS_LIST}" ] || echo "${APPROVALS_LIST}" | jq > /dev/null 2>&1; then
-    echo $APPROVALS_LIST
     APPROVAL_ID=$(echo "${APPROVALS_LIST}" | jq '.value[] | select(.release.id=='"${RELEASE_ID}"') | .id')
     if [ -n "${APPROVAL_ID}" ]; then
         echo "Approval ID found: ${APPROVAL_ID}"
@@ -59,10 +60,13 @@ if [ -z "${APPROVALS_LIST}" ] || echo "${APPROVALS_LIST}" | jq > /dev/null 2>&1;
             echo "Successfully approved release to production."
         else
             echo "Failed to approve release to production."
+            exit 1
         fi
     else
         echo "Approval ID not found"
+        exit 1
     fi
 else
     echo -e "\nFailed to fetch approvals list.\n\nError: \n${APPROVALS_LIST}"
+    exit 1
 fi
