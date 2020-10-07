@@ -50,7 +50,7 @@ fi
 
 APPROVALS_LIST=$(curl -u ":${AZURE_PAT}" "https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals?api-version=6.0")
 echo my approval list: $APPROVALS_LIST
-if [ -n "${APPROVALS_LIST}" ] && echo "${APPROVALS_LIST}" | jq > /dev/null 2>&1 && [[ "${APPROVALS_LIST}" == *"does not exist, or you do not have permission to access it"* ]]; then
+if [ -n "${APPROVALS_LIST}" ] && echo "${APPROVALS_LIST}" | jq '.value[]' > /dev/null 2>&1; then
     APPROVAL_ID=$(echo "${APPROVALS_LIST}" | jq '.value[] | select(.release.id=='"${RELEASE_ID}"') | .id')
     if [ -n "${APPROVAL_ID}" ]; then
         echo "Approval ID found: ${APPROVAL_ID}"
