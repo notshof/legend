@@ -10,20 +10,20 @@
 
 function usage {
   cat <<EOF
-    approval.sh <-t token> <-o organisation> <-p project> <-r release id>
+    approval.sh <-t token> <-u uri> <-p project> <-r release id>
 
     -t Azure Personal Access Token
-    -o Organisation Name
+    -u Team Foundation Collection Uri (https://dev.azure.com/fabrikam/)
     -p Project Name
     -r Release ID
 
 EOF
 }
 
-while getopts "t:o:p:r:" flag; do
+while getopts "t:u:p:r:" flag; do
 case "$flag" in
     t) export AZURE_PAT="${OPTARG}";;
-    o) export AZURE_ORG="${OPTARG}";;
+    u) export AZURE_ORG="$(basename ${OPTARG})";;
     p) export AZURE_PROJECT="${OPTARG}";;
     r) export RELEASE_ID="${OPTARG}";;
     *) echo "Error: Flag is not recognised" && usage && exit 1;;
