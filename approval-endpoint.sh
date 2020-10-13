@@ -6,6 +6,10 @@
 # Uses Azure API
 # Requires release id, organisation, and project as parameters from the first release pipeline.
 # Token can be provided by System.AccessToken
+# export SOURCE_RELEASE_ID=$(Release.ReleaseId)
+# export SOURCE_AZURE_ORG=$(basename "$(System.TeamFoundationCollectionUri)")
+# export SOURCE_AZURE_PROJECT=$(System.TeamProject)
+# export SOURCE_AZURE_PAT=$(System.AccessToken)
 ################################################################
 
 function usage {
@@ -48,10 +52,6 @@ elif [ -z "${AZURE_ORG}" ]; then
     exit 1
 fi
 
-SOURCE_RELEASE_ID=$(Release.ReleaseId)
-SOURCE_AZURE_ORG=$(basename "$(System.TeamFoundationCollectionUri)")
-SOURCE_AZURE_PROJECT=$(System.TeamProject)
-SOURCE_AZURE_PAT=$(System.AccessToken)
 APPROVALS_LIST=$(curl -u ":${TARGET_AZURE_PAT}" "https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals?api-version=6.0")
 
 if [ -n "${APPROVALS_LIST}" ] && echo "${APPROVALS_LIST}" | jq '.value[]' > /dev/null 2>&1; then
