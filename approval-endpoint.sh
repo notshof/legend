@@ -61,9 +61,8 @@ if [ -n "${APPROVALS_LIST}" ] && echo "${APPROVALS_LIST}" | jq '.value[]' > /dev
     if [ -n "${APPROVAL_ID}" ]; then
         echo "Approval ID found: ${APPROVAL_ID}"
         APPROVAL_ENDPOINT="https://vsrm.dev.azure.com/${AZURE_ORG}/${AZURE_PROJECT}/_apis/release/approvals/${APPROVAL_ID}?api-version=6.0"
-        EDITED_CURRENT_RELEASE=$( jq '.variables.APPROVAL_ENDPOINT = "'${APPROVAL_ENDPOINT}'"' <<< ${CURRENT_RELEASE} )
-        echo "${EDITED_CURRENT_RELEASE}"
-        if curl --header "Content-Type: application/json" --data "${EDITED_CURRENT_RELEASE}" -u ":${SOURCE_AZURE_PAT}" --request PUT "https://vsrm.dev.azure.com/${SOURCE_AZURE_ORG}/${SOURCE_AZURE_PROJECT}/_apis/release/releases/${SOURCE_RELEASE_ID}?api-version=6.0"; then
+        EDITED_CURRENT_RELEASE=$( jq '.variables.APPROVAL_ENDPOINT.value = "'${APPROVAL_ENDPOINT}'"' <<< ${CURRENT_RELEASE} )
+        if curl --header "Content-Type: application/json" --data "${EDITED_CURRENT_RELEASE}" -u ":${SOURCE_AZURE_PAT}" --request PUT "https://vsrm.dev.azure.com/${SOURCE_AZURE_ORG}/${SOURCE_AZURE_PROJECT}/_apis/release/releases/${SOURCE_RELEASE_ID}?api-version=6.0" | grep "modifiedBy" > /dev/null 2>&1; then
             echo "Successfully updated release to add APPROVAL_ENDPOINT."
         else
             echo "Failed to update release to add APPROVAL_ENDPOINT."
